@@ -105,6 +105,22 @@ function rehypeHeadingsFromH2() {
   }
 }
 
+// Models often write LaTeX as \( … \) and \[ … \]. Markdown reads those as escaped
+// brackets and remark-math only knows dollars, so they are rewritten outside code.
+// A \[ … \] that fills its own lines becomes display math; anywhere else it stays inline.
+function dollarMath(text: string): string {
+  return text
+    .split(/(```[\s\S]*?(?:```|$)|`[^`\n]*`)/)
+    .map((part, index) =>
+      index % 2
+        ? part
+        : part
+            .replace(/^([ \t]*)\\\[([\s\S]+?)\\\][ \t]*$/gm, (_, indent: string, body: string) => `${indent}$$\n${indent}${body.trim()}\n${indent}$$`)
+            .replace(/\\\[([\s\S]+?)\\\]|\\\(([\s\S]+?)\\\)/g, (_, display?: string, inline?: string) => `$${(display ?? inline ?? '').trim()}$`),
+    )
+    .join('')
+}
+
 /** Renders assistant markdown. Raw HTML is never parsed, so tags in model output show as text. */
 export default function Markdown({ text }: { text: string }) {
   return (
@@ -120,7 +136,7 @@ export default function Markdown({ text }: { text: string }) {
         urlTransform={safeUrl}
         skipHtml
       >
-        {text}
+        {dollarMath(text)}
       </ReactMarkdown>
     </div>
   )
