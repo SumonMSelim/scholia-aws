@@ -84,6 +84,27 @@ const components: Components = {
   },
 }
 
+type HastElement = NonNullable<ExtraProps['node']>
+
+// An answer sits under the page's h1, so its top heading becomes h2 whatever level
+// the model started at, and the rest keep their depth below it. Screen readers then
+// see an outline with no skipped levels.
+function rehypeHeadingsFromH2() {
+  return (tree: { children: HastElement['children'] }) => {
+    const headings: HastElement[] = []
+    const walk = (node: { children: HastElement['children'] }) => {
+      for (const child of node.children) {
+        if (child.type !== 'element') continue
+        if (/^h[1-6]$/.test(child.tagName)) headings.push(child)
+        else walk(child)
+      }
+    }
+    walk(tree)
+    const top = Math.min(...headings.map((heading) => Number(heading.tagName[1])))
+    for (const heading of headings) heading.tagName = `h${Math.min(6, Number(heading.tagName[1]) - top + 2)}`
+  }
+}
+
 /** Renders assistant markdown. Raw HTML is never parsed, so tags in model output show as text. */
 export default function Markdown({ text }: { text: string }) {
   return (
@@ -93,6 +114,7 @@ export default function Markdown({ text }: { text: string }) {
         rehypePlugins={[
           [rehypeKatex, katexOptions],
           [rehypeHighlight, { languages, detect: false }],
+          rehypeHeadingsFromH2,
         ]}
         components={components}
         urlTransform={safeUrl}

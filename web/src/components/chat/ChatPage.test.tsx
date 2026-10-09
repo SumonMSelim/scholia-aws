@@ -52,6 +52,8 @@ describe('ChatPage', () => {
     renderWithData(<Routed />)
     expect(await screen.findByRole('heading', { name: 'Study with your course' })).toBeInTheDocument()
     await waitFor(() => expect(screen.getByLabelText('Course')).toHaveTextContent('Algebra'))
+    // The course title would wrap under the pickers on a phone; the picker already names it.
+    expect(screen.getByLabelText('Message')).toHaveAttribute('placeholder', 'Ask anything about this course…')
     expect(screen.getByLabelText('Model')).toHaveTextContent('GPT-4.1 mini')
     expect(screen.queryByRole('radiogroup', { name: 'Response style' })).not.toBeInTheDocument()
 

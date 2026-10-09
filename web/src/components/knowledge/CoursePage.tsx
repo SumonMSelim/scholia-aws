@@ -86,7 +86,7 @@ function CourseDetail({ course, chats }: { course: Course; chats: { id: string; 
   return (
     <div className="space-y-6 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
       <div className="space-y-3">
-        <Link to="/knowledge" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
+        <Link to="/knowledge" className="inline-flex min-h-6 items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
           <ArrowLeft className="size-4" aria-hidden />
           Knowledge
         </Link>
@@ -107,7 +107,7 @@ function CourseDetail({ course, chats }: { course: Course; chats: { id: string; 
         </div>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem] 2xl:grid-cols-[minmax(0,1fr)_26rem]">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_22rem] 2xl:grid-cols-[minmax(0,1fr)_26rem]">
         <div className="min-w-0 space-y-6">
           {canEdit ? (
             <section aria-labelledby="add-files" className="space-y-3">

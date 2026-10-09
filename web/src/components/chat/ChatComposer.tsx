@@ -161,7 +161,7 @@ export function ChatComposer({
           aria-label="Message"
           rows={1}
           className="block max-h-60 w-full resize-none bg-transparent px-4 pt-3.5 pb-2 text-[15px] leading-6 outline-none placeholder:text-muted-foreground"
-          placeholder={courseTitle ? `Ask anything about ${courseTitle}…` : 'Choose a course to start…'}
+          placeholder={courseTitle ? 'Ask anything about this course…' : 'Choose a course to start…'}
           value={question}
           disabled={disabled}
           onChange={(event) => setQuestion(event.target.value)}
