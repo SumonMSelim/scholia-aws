@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { ApiError, deleteProviderKey, providers, putProviderKey, putSettings, type Provider } from '@/lib/api'
-import { availableModels, modelLabel, modelOptions } from '@/lib/models'
+import { availableModels, modelLabel, modelOptions, serverModel } from '@/lib/models'
 import { fieldClass } from '@/lib/field'
 import { useAppData } from '@/components/app/appDataContext'
 import { Alert, AlertDescription } from '@/components/ui/alert'
@@ -148,7 +148,7 @@ function DefaultModel() {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [saved, setSaved] = useState(false)
-  const choices = availableModels(models, settings?.providers, defaults?.server_models)
+  const choices = availableModels(models, settings?.providers, serverModel(defaults))
 
   const value = picked ?? settings?.default_model ?? ''
 

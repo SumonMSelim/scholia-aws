@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { Chat, Model } from './api'
-import { availableModels, groupChats, modelLabel, pickModel } from './models'
+import { availableModels, groupChats, modelLabel, pickModel, serverModel } from './models'
 
 const models: Model[] = [
   { id: 'gpt-4.1-mini', provider: 'openai', label: 'GPT-4.1 mini' },
@@ -22,10 +22,26 @@ describe('availableModels', () => {
     expect(availableModels(models, [{ provider: 'bedrock', connected: true }, { provider: 'openai', connected: false }]).map((m) => m.id)).toEqual(['nova-lite', 'claude'])
   })
 
-  it('keeps server-paid Bedrock beside a connected key', () => {
+  it('keeps the server-paid model beside a connected key, and only that one', () => {
     const openaiOnly = [{ provider: 'openai' as const, connected: true }]
     expect(availableModels(models, openaiOnly).map((m) => m.id)).toEqual(['gpt-4.1-mini'])
-    expect(availableModels(models, openaiOnly, true).map((m) => m.id)).toEqual(['gpt-4.1-mini', 'nova-lite', 'claude'])
+    expect(availableModels(models, openaiOnly, 'nova-lite').map((m) => m.id)).toEqual(['gpt-4.1-mini', 'nova-lite'])
+  })
+
+  it('offers a guest or keyless user only the server-paid model', () => {
+    // Any other pick would be answered by the server model under the wrong label.
+    expect(availableModels(models, undefined, 'nova-lite').map((m) => m.id)).toEqual(['nova-lite'])
+    expect(availableModels(models, [{ provider: 'openai', connected: false }], 'nova-lite').map((m) => m.id)).toEqual(['nova-lite'])
+  })
+})
+
+describe('serverModel', () => {
+  it.each([
+    ['on', { chat_model: 'nova-lite', embed_model: 'titan', web_search: false, server_models: true }, 'nova-lite'],
+    ['off', { chat_model: 'nova-lite', embed_model: 'titan', web_search: false, server_models: false }, ''],
+    ['unknown', null, ''],
+  ])('is the default chat model only while server models are %s', (_name, defaults, want) => {
+    expect(serverModel(defaults)).toBe(want)
   })
 })
 
