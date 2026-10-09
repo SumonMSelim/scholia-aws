@@ -31,6 +31,26 @@ export function errorText(err: unknown, fallback: string): string {
   return fallback
 }
 
+/** What a call says when the browser could not reach the API, in place of "Failed to fetch". */
+export const networkMessage = 'Could not reach Scholia. Check your connection and try again.'
+
+/**
+ * A network failure rejects fetch, or a stream read, with a bare TypeError. That becomes
+ * an ApiError with status 0 so the page shows a sentence. An abort stays an abort.
+ */
+function offline(err: unknown): unknown {
+  if (err instanceof TypeError) return new ApiError(0, networkMessage, 'network')
+  return err
+}
+
+async function send(url: string, init: RequestInit): Promise<Response> {
+  try {
+    return await fetch(url, init)
+  } catch (err) {
+    throw offline(err)
+  }
+}
+
 /** A daily quota ran out (429) or the operator paused the service (503). */
 export function limitCode(err: unknown): 'quota' | 'paused' | null {
   if (!(err instanceof ApiError)) return null
@@ -160,7 +180,7 @@ async function apiFetch(path: string, init: RequestInit = {}): Promise<Response>
   if (method !== 'GET' && method !== 'HEAD') {
     headers['x-amz-content-sha256'] = await sha256Hex(typeof init.body === 'string' ? init.body : '')
   }
-  return fetch(path, { ...init, headers })
+  return send(path, { ...init, headers })
 }
 
 export type SourceStatus = 'queued' | 'processing' | 'ready' | 'failed'
@@ -268,7 +288,7 @@ export async function uploadSource(courseID: string, file: File): Promise<void> 
   if (!res.ok) throw await readError(res, 'could not start upload')
   const body: unknown = await res.json()
   if (!isUploadTicket(body)) throw new ApiError(res.status, 'unexpected upload response')
-  const put = await fetch(body.upload_url, {
+  const put = await send(body.upload_url, {
     method: 'PUT',
     headers: { ...body.headers, 'Content-Type': contentType },
     body: file,
@@ -606,7 +626,7 @@ export async function uploadChatAttachment(chatID: string, file: File): Promise<
   const row = body as { attachment?: unknown; upload_url?: unknown; headers?: unknown } | null
   const extra = uploadHeaders(row?.headers)
   if (!row || !isChatAttachment(row.attachment) || typeof row.upload_url !== 'string' || !extra) throw new ApiError(res.status, 'unexpected attachment')
-  const put = await fetch(row.upload_url, { method: 'PUT', headers: { ...extra, 'Content-Type': contentType }, body: file })
+  const put = await send(row.upload_url, { method: 'PUT', headers: { ...extra, 'Content-Type': contentType }, body: file })
   if (!put.ok) throw new ApiError(put.status, 'upload failed')
   return row.attachment
 }
@@ -718,7 +738,13 @@ export async function readSSE(stream: ReadableStream<Uint8Array>, onEvent: (even
   const decoder = new TextDecoder()
   let buf = ''
   for (;;) {
-    const { done, value } = await reader.read()
+    let chunk: ReadableStreamReadResult<Uint8Array>
+    try {
+      chunk = await reader.read()
+    } catch (err) {
+      throw offline(err)
+    }
+    const { done, value } = chunk
     if (done) return
     buf += decoder.decode(value, { stream: true })
     let split = buf.indexOf('\n\n')
