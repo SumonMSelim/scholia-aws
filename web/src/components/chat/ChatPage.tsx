@@ -17,7 +17,7 @@ import {
   type ChatMessage,
   type RefusalReason,
 } from '@/lib/api'
-import { availableModels, modelLabel, pickModel } from '@/lib/models'
+import { availableModels, modelLabel, pickModel, serverModel } from '@/lib/models'
 import { navigate, useLocation } from '@/lib/router'
 import { Link } from '@/components/Link'
 import { useAppData } from '@/components/app/appDataContext'
@@ -108,7 +108,7 @@ export function ChatPage({ chatId }: { chatId: string | null }) {
   }, [rows])
 
   const courseRows = courses ?? []
-  const choices = availableModels(models, settings?.providers, defaults?.server_models)
+  const choices = availableModels(models, settings?.providers, serverModel(defaults))
   const queryCourse = query.get('course') ?? ''
   const valid = (id: string | undefined) => (id && courseRows.some((course) => course.id === id) ? id : '')
   // A pick made under a different ?course= no longer applies, so the link wins.

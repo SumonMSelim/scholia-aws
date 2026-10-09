@@ -70,6 +70,41 @@ describe('Markdown', () => {
     expect(container.querySelector('.katex-display')).not.toBeNull()
   })
 
+  it('renders \\( \\) and \\[ \\] math the way models often write it', () => {
+    const text = [
+      'The size is:',
+      '',
+      '\\[',
+      '\\text{size}(u) = \\text{size}(u.\\text{left}) + \\text{size}(u.\\text{right}) + 1',
+      '\\]',
+      '',
+      'Where:',
+      '- \\( u \\) is the node',
+      '  \\[ x^2 \\]',
+      '- the \\[ +1 \\] counts \\( u \\) itself',
+    ].join('\n')
+    const { container } = render(<Markdown text={text} />)
+    expect(container.querySelectorAll('.katex-display')).toHaveLength(2)
+    expect(container.querySelectorAll('.katex').length).toBe(5)
+    expect(screen.getAllByRole('listitem')).toHaveLength(2)
+    // KaTeX keeps the source in a hidden annotation; no raw TeX may show outside it.
+    container.querySelectorAll('.katex').forEach((node) => node.remove())
+    expect(container).not.toHaveTextContent('\\text')
+  })
+
+  it('leaves backslash brackets in code alone', () => {
+    const { container } = render(<Markdown text={'Use `\\(x\\)` here.\n\n```tex\n\\[ a \\]\n```'} />)
+    expect(container.querySelector('.katex')).toBeNull()
+    expect(container.querySelector('p code')).toHaveTextContent('\\(x\\)')
+    expect(container.querySelector('pre code')).toHaveTextContent('\\[ a \\]')
+  })
+
+  it('keeps an unclosed \\( as text while it streams', () => {
+    const { container } = render(<Markdown text={'Partial \\( x + '} />)
+    expect(container.querySelector('.katex')).toBeNull()
+    expect(container).toHaveTextContent('Partial ( x +')
+  })
+
   it('keeps an unclosed fence readable while it streams', () => {
     const { container } = render(<Markdown text={'Steps:\n\n```bash\nls -la'} />)
     expect(container.querySelector('pre')).toHaveTextContent('ls -la')

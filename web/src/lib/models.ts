@@ -1,14 +1,20 @@
-import type { Chat, Course, Model, ProviderStatus } from '@/lib/api'
+import type { Chat, Course, Model, ModelDefaults, ProviderStatus } from '@/lib/api'
 
 /**
- * Models for connected providers, or every model when nothing is connected yet.
- * Server-paid Bedrock needs no key, so its models stay offered while it is on.
+ * Models that answer as picked: those of connected providers, plus the one model the
+ * server pays for while that is on. The server answers any other keyless pick with
+ * its own model, so offering more would label the reply wrongly. With no key and no
+ * server model, every model is listed to show what a key unlocks.
  */
-export function availableModels(models: Model[], providers: ProviderStatus[] | undefined, serverModels = false): Model[] {
+export function availableModels(models: Model[], providers: ProviderStatus[] | undefined, serverModel = ''): Model[] {
   const connected = new Set((providers ?? []).filter((p) => p.connected).map((p) => p.provider))
-  if (connected.size === 0) return models
-  if (serverModels) connected.add('bedrock')
-  return models.filter((model) => connected.has(model.provider))
+  const usable = models.filter((model) => connected.has(model.provider) || model.id === serverModel)
+  return usable.length > 0 ? usable : models
+}
+
+/** The model the server answers keyless chats with, or '' while server-paid models are off. */
+export function serverModel(defaults: ModelDefaults | null | undefined): string {
+  return defaults?.server_models ? defaults.chat_model : ''
 }
 
 /** The user's default wins, then the server default, then the first choice. */
