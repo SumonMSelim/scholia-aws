@@ -139,7 +139,7 @@ func (s *Service) Answer(ctx context.Context, req Request, emit func(delta strin
 	chunks = usable(chunks)
 	var web []websearch.Result
 	if s.Web != nil && len(chunks) < thinChunks && webTask(task) && (s.WebAllowed == nil || s.WebAllowed(ctx, req.Meter)) {
-		web = s.searchWeb(ctx, req.CourseTitle, req.Question)
+		web = s.searchWeb(ctx, req.Question)
 	}
 	examGoing := task == TaskExam && len(history) > 0
 	if len(chunks) == 0 && len(web) == 0 && len(files) == 0 && !examGoing {
@@ -162,19 +162,17 @@ func webTask(task Task) bool {
 	return task == TaskQuestion || task == TaskSolve || task == TaskExplain
 }
 
-// searchWeb scopes the query to the course. A failure answers without the web.
-func (s *Service) searchWeb(ctx context.Context, course, question string) []websearch.Result {
+// searchWeb sends the question alone. The web only runs when the course lacks
+// the topic, and a course title in the query pulled back copies of the course
+// itself instead of pages on the question. A failure answers without the web.
+func (s *Service) searchWeb(ctx context.Context, question string) []websearch.Result {
 	timeout := s.WebTimeout
 	if timeout == 0 {
 		timeout = webTimeout
 	}
 	ctx, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
-	query := question
-	if course != "" {
-		query = course + ": " + question
-	}
-	results, err := s.Web.Search(ctx, query)
+	results, err := s.Web.Search(ctx, question)
 	if err != nil {
 		return nil
 	}
