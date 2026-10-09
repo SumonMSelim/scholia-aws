@@ -322,7 +322,8 @@ func TestWebFillsThinMaterial(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(web.Queries) != 1 || web.Queries[0] != "Networks: What is TCP?" {
+	// The course title stays out of the query: it steered results to copies of the course.
+	if len(web.Queries) != 1 || web.Queries[0] != "What is TCP?" {
 		t.Fatalf("queries = %q", web.Queries)
 	}
 	if out.Refused || len(out.Web) != 1 || out.Web[0].URL != "https://example.test/tcp" {
