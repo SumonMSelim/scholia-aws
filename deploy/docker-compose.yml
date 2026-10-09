@@ -1,0 +1,109 @@
+name: scholia
+
+x-aws-local: &aws-local
+  AWS_ENDPOINT_URL: http://floci:4566
+  AWS_REGION: us-east-1
+  AWS_ACCESS_KEY_ID: test
+  AWS_SECRET_ACCESS_KEY: test
+
+services:
+  floci:
+    image: floci/floci:2.1.0
+    ports:
+      - "127.0.0.1:4566:4566"
+    environment:
+      FLOCI_SERVICES_UI_ENABLED: "false"
+
+  aws-init:
+    image: amazon/aws-cli:2.37.4
+    depends_on:
+      - floci
+    environment:
+      <<: *aws-local
+      SCHOLIA_TABLE: scholia-local
+      SCHOLIA_UPLOADS_BUCKET: scholia-local-uploads
+      SCHOLIA_QUEUE: scholia-local-uploads
+      SCHOLIA_VECTOR_BUCKET: scholia-local-vectors
+    volumes:
+      - ./init/init-aws.sh:/init-aws.sh:ro
+    entrypoint: ["/bin/bash", "/init-aws.sh"]
+
+  api:
+    build:
+      context: ..
+      args:
+        CMD: api
+    depends_on:
+      aws-init:
+        condition: service_completed_successfully
+    environment:
+      <<: *aws-local
+      SCHOLIA_ENV: local
+      PORT: "8787"
+      LOG_LEVEL: debug
+      TABLE_NAME: scholia-local
+      UPLOADS_BUCKET: scholia-local-uploads
+      QUEUE_NAME: scholia-local-uploads
+      SCHOLIA_VECTOR_BUCKET: scholia-local-vectors
+      SCHOLIA_SESSION_SECRET: local-dev-session-secret-min-16
+      # Browser upload URLs must use the published floci port, not the compose host name.
+      SCHOLIA_PUBLIC_S3_ENDPOINT: http://localhost:4566
+      # Optional. Empty leaves web search off.
+      TAVILY_API_KEY: ${TAVILY_API_KEY:-}
+    ports:
+      - "127.0.0.1:8787:8787"
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+
+  worker:
+    build:
+      context: ..
+      args:
+        CMD: worker
+    depends_on:
+      aws-init:
+        condition: service_completed_successfully
+    environment:
+      <<: *aws-local
+      SCHOLIA_ENV: local
+      LOG_LEVEL: debug
+      TABLE_NAME: scholia-local
+      UPLOADS_BUCKET: scholia-local-uploads
+      QUEUE_NAME: scholia-local-uploads
+      SCHOLIA_VECTOR_BUCKET: scholia-local-vectors
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+
+  web:
+    image: node:24-alpine
+    working_dir: /app
+    command: sh -c "npm ci --no-audit --no-fund && npm run dev"
+    depends_on:
+      - api
+    environment:
+      SCHOLIA_API_URL: http://api:8787
+    ports:
+      - "127.0.0.1:5287:5287"
+    volumes:
+      - ../web:/app
+      - web-node-modules:/app/node_modules
+
+  playwright:
+    image: mcr.microsoft.com/playwright:v1.56.1-noble
+    profiles: ["e2e"]
+    working_dir: /work
+    depends_on:
+      - web
+      - worker
+    environment:
+      SCHOLIA_BASE_URL: http://web:5287
+    volumes:
+      - ../web:/work
+      - playwright-node-modules:/work/node_modules
+    command: sh -c "npm ci --no-audit --no-fund && npx playwright test"
+
+volumes:
+  web-node-modules:
+  playwright-node-modules:

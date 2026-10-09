@@ -1,0 +1,72 @@
+{
+  "courses": [
+    {
+      "id": "nets",
+      "sources": [
+        {
+          "id": "s-nets",
+          "chunks": [
+            {
+              "id": "p-route",
+              "text": "Routing",
+              "locators": [{ "kind": "slide", "slide": 1 }]
+            },
+            {
+              "id": "c-route",
+              "parent_id": "p-route",
+              "text": "Tables pick the next hop for a packet.",
+              "locators": [{ "kind": "slide", "slide": 1 }],
+              "values": [1, 0, 0, 0]
+            },
+            {
+              "id": "p-tcp",
+              "text": "Transport",
+              "locators": [{ "kind": "slide", "slide": 2 }]
+            },
+            {
+              "id": "c-tcp",
+              "parent_id": "p-tcp",
+              "text": "TCP retransmits lost segments.",
+              "locators": [{ "kind": "slide", "slide": 2 }],
+              "values": [0, 1, 0, 0]
+            },
+            {
+              "id": "p-dns",
+              "text": "Names",
+              "locators": [{ "kind": "slide", "slide": 3 }]
+            },
+            {
+              "id": "c-dns",
+              "parent_id": "p-dns",
+              "text": "DNS resolves a name to an address.",
+              "locators": [{ "kind": "slide", "slide": 3 }],
+              "values": [0, 0, 1, 0]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "other",
+      "sources": [
+        {
+          "id": "s-other",
+          "chunks": [
+            {
+              "id": "p-other",
+              "text": "Foreign routing",
+              "locators": [{ "kind": "slide", "slide": 1 }]
+            },
+            {
+              "id": "c-other",
+              "parent_id": "p-other",
+              "text": "Tables pick the next hop for a packet.",
+              "locators": [{ "kind": "slide", "slide": 1 }],
+              "values": [1, 0, 0, 0]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

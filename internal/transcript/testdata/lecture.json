@@ -1,0 +1,22 @@
+{
+  "results": {
+    "items": [
+      {"start_time": "0.0", "end_time": "0.3", "type": "pronunciation", "alternatives": [{"content": "Hello"}]},
+      {"start_time": "0.4", "end_time": "0.9", "type": "pronunciation", "alternatives": [{"content": "world"}]},
+      {"type": "punctuation", "alternatives": [{"content": "."}]},
+      {"start_time": "1.2", "end_time": "1.5", "type": "pronunciation", "alternatives": [{"content": "Next"}]},
+      {"start_time": "1.6", "end_time": "2.0", "type": "pronunciation", "alternatives": [{"content": "line"}]},
+      {"type": "punctuation", "alternatives": [{"content": "."}]}
+    ],
+    "speaker_labels": {
+      "segments": [{
+        "items": [
+          {"start_time": "0.0", "speaker_label": "spk_0"},
+          {"start_time": "0.4", "speaker_label": "spk_0"},
+          {"start_time": "1.2", "speaker_label": "spk_0"},
+          {"start_time": "1.6", "speaker_label": "spk_0"}
+        ]
+      }]
+    }
+  }
+}

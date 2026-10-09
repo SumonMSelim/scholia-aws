@@ -1,0 +1,9 @@
+# Search engines and AI agents are welcome on the public pages.
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /chat
+Disallow: /knowledge
+Disallow: /settings
+
+Sitemap: https://scholia-aws.mol.la/sitemap.xml

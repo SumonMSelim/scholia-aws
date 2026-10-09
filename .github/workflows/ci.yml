@@ -1,0 +1,46 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.27.1"
+          cache: true
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Install Terraform, tflint and trivy
+        run: |
+          set -euo pipefail
+          curl -fsSL -o /tmp/terraform.zip https://releases.hashicorp.com/terraform/1.16.4/terraform_1.16.4_linux_amd64.zip
+          sudo unzip -qo /tmp/terraform.zip -d /usr/local/bin
+          curl -fsSL -o /tmp/tflint.zip https://github.com/terraform-linters/tflint/releases/download/v0.60.0/tflint_linux_amd64.zip
+          sudo unzip -qo /tmp/tflint.zip -d /usr/local/bin
+          curl -fsSL -o /tmp/trivy.tar.gz https://github.com/aquasecurity/trivy/releases/download/v0.74.0/trivy_0.74.0_Linux-64bit.tar.gz
+          sudo tar -C /usr/local/bin -xzf /tmp/trivy.tar.gz trivy
+
+      - name: Install checkov
+        run: pip install checkov==3.3.19
+
+      - name: Pipeline
+        run: make ci

@@ -1,0 +1,10 @@
+.git
+bin
+dist
+web
+infra
+docs
+deploy
+**/node_modules
+**/.terraform
+coverage.out

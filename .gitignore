@@ -1,0 +1,39 @@
+# Build output
+/bin/
+/dist/
+coverage.out
+*.test
+
+# Web
+node_modules/
+web/dist/
+web/coverage/
+web/playwright-report/
+web/test-results/
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+tfplan*
+*.tfplan
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraform.tfstate.lock.info
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+*.pem
+
+# Editors and OS
+.DS_Store
+.idea/
+.vscode/
+
+# Demo course downloads (cmd/seed)
+/data/

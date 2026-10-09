@@ -1,0 +1,13 @@
+WEBVTT
+
+NOTE
+This comment is not a cue.
+
+STYLE
+::cue { color: white; }
+
+00:00:00.000 --> 00:00:00.900 align:start
+<v spk_0>Hello world.
+
+00:01.200 --> 00:02.000
+<v spk_0>Next line.
