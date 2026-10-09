@@ -96,7 +96,7 @@ export function Sidebar({ route, health, onNavigate }: { route: Route; health: H
                     to={`/chat?course=${encodeURIComponent(group.courseId)}`}
                     onClick={onNavigate}
                     aria-label={`New chat in ${group.title}`}
-                    className="mr-1 rounded p-1 text-muted-foreground opacity-100 hover:bg-background hover:text-foreground md:opacity-0 md:group-hover/course:opacity-100 md:focus-visible:opacity-100"
+                    className="mr-1 inline-flex size-6 items-center justify-center rounded text-muted-foreground opacity-100 hover:bg-background hover:text-foreground md:opacity-0 md:group-hover/course:opacity-100 md:focus-visible:opacity-100"
                   >
                     <Plus className="size-3.5" aria-hidden />
                   </Link>

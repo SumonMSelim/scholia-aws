@@ -52,18 +52,20 @@ export function SourceList({
                   <span className="min-w-0 truncate" title={citation.section}>
                     {name}
                     {section ? <span className="text-muted-foreground"> · {section}</span> : null}
-                    {where ? <span className="text-muted-foreground"> · {where}</span> : null}
                   </span>
+                  {/* Outside the truncated name, so a long lecture title on a phone never hides the page or moment.
+                      A watchable moment already shows on its Watch button. */}
+                  {where && player === '' ? <span className="shrink-0 text-muted-foreground tabular-nums">· {where}</span> : null}
                 </button>
                 {player !== '' ? (
                   <button
                     type="button"
-                    aria-pressed={watching}
+                    aria-expanded={watching}
                     onClick={() => setPlaying(watching ? null : index)}
                     className="inline-flex shrink-0 items-center gap-1 font-medium text-primary underline-offset-4 hover:underline"
                   >
                     <Play className="size-3.5" aria-hidden />
-                    {watching ? 'Close' : `Watch ${where}`}
+                    {watching ? 'Close video' : `Watch ${where}`}
                   </button>
                 ) : null}
               </div>

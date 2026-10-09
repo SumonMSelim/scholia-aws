@@ -32,6 +32,23 @@ describe('Markdown', () => {
     expect(screen.getByText('python')).toBeInTheDocument()
   })
 
+  it.each([
+    ['### Dijkstra\n\n#### Negative edges', [2, 3]],
+    ['# Overview\n\n## Steps\n\n### Detail', [2, 3, 4]],
+    ['##### Deep\n\n###### Deeper', [2, 3]],
+    ['## Only', [2]],
+  ])('starts the answer outline at h2: %j', (text, levels) => {
+    render(<Markdown text={text} />)
+    const found = screen.getAllByRole('heading').map((heading) => Number(heading.tagName[1]))
+    expect(found).toEqual(levels)
+  })
+
+  it('leaves an answer without headings alone', () => {
+    render(<Markdown text="Plain answer." />)
+    expect(screen.queryByRole('heading')).not.toBeInTheDocument()
+    expect(screen.getByText('Plain answer.')).toBeInTheDocument()
+  })
+
   it('highlights LaTeX, which is outside the common language set', () => {
     const { container } = render(<Markdown text={'```latex\n\\begin{enumerate}\n\\item One\n\\end{enumerate}\n```'} />)
     expect(container.querySelector('pre code')).toHaveClass('language-latex')

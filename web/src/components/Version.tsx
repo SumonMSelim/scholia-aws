@@ -7,7 +7,7 @@ export function Version({ state, className }: { state: HealthState; className?: 
   return (
     <span className={className} title={`Commit ${commit}`}>
       {version}
-      {commit ? <span className="opacity-70"> · {commit}</span> : null}
+      {commit ? <span> · {commit}</span> : null}
     </span>
   )
 }

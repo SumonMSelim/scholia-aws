@@ -41,16 +41,33 @@ describe('SourceList', () => {
     )
     // Only a lecture moment with a recording can be watched.
     const watch = screen.getByRole('button', { name: 'Watch 12:34' })
+    expect(watch).toHaveAttribute('aria-expanded', 'false')
+    // The moment is on the Watch button, not repeated beside the name; a recording-less moment keeps it.
+    expect(screen.queryByText('· 12:34')).not.toBeInTheDocument()
+    expect(screen.getByText(`· ${place([{ kind: 'time', start_ms: 1000, end_ms: 2000 }])}`)).toBeInTheDocument()
     expect(screen.getAllByRole('button', { name: /^Watch/ })).toHaveLength(1)
     expect(document.querySelector('iframe')).toBeNull()
 
     await userEvent.click(watch)
     const player = screen.getByTitle('Lecture 04 - Hashing - transcript.vtt at 12:34')
     expect(player).toHaveAttribute('src', 'https://www.youtube-nocookie.com/embed/Nu8YGneFCWE?start=752&autoplay=1&rel=0')
-    expect(screen.getByRole('button', { name: 'Close' })).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('button', { name: 'Close video' })).toHaveAttribute('aria-expanded', 'true')
 
-    await userEvent.click(screen.getByRole('button', { name: 'Close' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Close video' }))
     expect(document.querySelector('iframe')).toBeNull()
+  })
+
+  it('keeps the page or moment visible when a long file name is cut short', () => {
+    render(
+      <SourceList
+        citations={[{ chunk_id: 'a', source_id: 'notes', locators: [{ kind: 'page', page: 3 }], section: 'Heaps' }]}
+        web={[]}
+        names={{ notes: 'Lecture 08 - Binary Heaps - notes.pdf' }}
+      />,
+    )
+    const where = screen.getByText(`· ${place([{ kind: 'page', page: 3 }])}`)
+    expect(where.closest('.truncate')).toBeNull()
+    expect(where).toHaveClass('shrink-0')
   })
 
   it('renders nothing without sources', () => {
