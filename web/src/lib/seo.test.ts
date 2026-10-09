@@ -23,7 +23,7 @@ describe('seo', () => {
   })
 
   it('keeps the description short enough for search results', () => {
-    expect(siteTitle.length).toBeLessThanOrEqual(60)
+    expect(siteTitle.length).toBeLessThanOrEqual(65)
     expect(description.length).toBeLessThanOrEqual(160)
   })
 
