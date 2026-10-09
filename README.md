@@ -1,10 +1,12 @@
-# Scholia
+# Scholia: AI study assistant for your lectures, slides and notes
 
 [![CI](https://github.com/SumonMSelim/scholia-aws/actions/workflows/ci.yml/badge.svg)](https://github.com/SumonMSelim/scholia-aws/actions/workflows/ci.yml)
 [![Go](https://img.shields.io/badge/Go-1.27-00ADD8?logo=go&logoColor=white)](https://go.dev/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 Scholia turns a course's lecture transcripts, slides, notes and assignments into a knowledge base that answers questions with citations to the exact lecture moment, slide or page, and helps you prepare for exams. The name comes from *scholia*, the notes scholars wrote in the margins of classical texts.
+
+I built Scholia for myself first, to help with my Master's studies. I wanted answers that come from my own course and that I can check against the lecture. It is free and open source so any student can use it the same way.
 
 **Live app:** https://scholia-aws.mol.la (click **Try the demo, no sign-up**; guest data is deleted after 48 hours)
 

@@ -74,7 +74,8 @@ describe('App', () => {
     vi.spyOn(globalThis, 'fetch').mockReturnValue(new Promise(() => {}))
     render(<App />)
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(hero.title)
-    expect(screen.getByText(siteTagline)).toBeInTheDocument()
+    // The headline and the header both carry the tagline.
+    expect(screen.getAllByText(siteTagline)).toHaveLength(2)
     for (const name of ['What Scholia does', 'How it works', 'Files you can upload', 'Questions']) {
       expect(screen.getByRole('heading', { level: 2, name })).toBeInTheDocument()
     }

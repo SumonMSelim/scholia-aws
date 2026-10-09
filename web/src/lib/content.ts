@@ -5,6 +5,8 @@
  * native English speakers.
  */
 
+import { siteTagline } from './site.ts'
+
 export const siteUrl = 'https://scholia-aws.mol.la'
 export const repoUrl = 'https://github.com/SumonMSelim/scholia-aws'
 
@@ -12,7 +14,7 @@ export const description =
   'Upload slides, PDFs, notes and lecture captions. Ask questions and get answers with the page, slide or lecture moment they came from. Practice with mock exams.'
 
 export const hero = {
-  title: 'Study from your own lectures and slides.',
+  title: siteTagline,
   body:
     'Upload slides, PDFs, notes and lecture captions. ' +
     'Ask a question and get an answer from your course, with the page, slide or lecture moment it came from. ' +
