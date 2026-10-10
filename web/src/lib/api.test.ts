@@ -21,6 +21,7 @@ import {
   listCourses,
   listModels,
   listSources,
+  networkMessage,
   putProviderKey,
   putSettings,
   readSSE,
@@ -499,6 +500,32 @@ describe('guest demo api', () => {
     expect(errorText(new Error('plain'), 'x')).toBe('plain')
     expect(errorText('nope', 'fallback')).toBe('fallback')
     expect(new ApiError(500, 'm').code).toBe('')
+  })
+
+  it('turns a dropped connection into a sentence and leaves aborts alone', async () => {
+    const spy = vi.spyOn(globalThis, 'fetch').mockRejectedValue(new TypeError('Failed to fetch'))
+    const err = await listCourses().catch((e: unknown) => e)
+    expect(err).toBeInstanceOf(ApiError)
+    expect(err).toMatchObject({ status: 0, code: 'network', message: networkMessage })
+    expect(errorText(err, 'x')).toBe(networkMessage)
+    const abort = new DOMException('aborted', 'AbortError')
+    spy.mockRejectedValue(abort)
+    await expect(listCourses()).rejects.toBe(abort)
+    spy.mockRestore()
+  })
+
+  it('turns a stream that drops mid-answer into the same sentence', async () => {
+    const stream = new ReadableStream<Uint8Array>({
+      start(ctrl) {
+        ctrl.enqueue(new TextEncoder().encode('event: delta\ndata: {"text":"Hi"}\n\n'))
+      },
+      pull(ctrl) {
+        ctrl.error(new TypeError('network error'))
+      },
+    })
+    const events: unknown[] = []
+    await expect(readSSE(stream, (event) => events.push(event))).rejects.toMatchObject({ code: 'network', message: networkMessage })
+    expect(events).toEqual([{ type: 'delta', text: 'Hi' }])
   })
 
   it('forwards the x-amz upload headers a ticket was signed with', async () => {
